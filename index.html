@@ -1,0 +1,611 @@
+<title>PrivateLedger</title>
+<meta name="description" content="On-device personal finance intelligence. Your money never leaves your machine.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --ink:#1a2133; --ink-soft:#5a6378; --line:#e4e8f3;
+  --paper:#eef1f8; --paper-2:#f6f8fd; --card:#ffffff;
+  --indigo:#5b6cff; --indigo-d:#3f4fd6; --indigo-dd:#2b37a8;
+  --coin:#f5b43c; --mint:#2dd4bf; --rose:#e85d9e; --red:#e2504a; --green:#1f9d63;
+  --shadow:0 20px 40px rgba(37,48,97,.12); --shadow-sm:0 8px 20px rgba(37,48,97,.10);
+  --r:16px; --maxw:1120px; color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"Plus Jakarta Sans",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.55;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:var(--maxw);margin:0 auto;padding-inline:22px}
+.mono{font-family:"Space Mono",monospace;font-variant-numeric:tabular-nums}
+.eyebrow{font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--indigo-d)}
+button{font-family:inherit}
+.btn{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;border-radius:999px;padding:11px 22px;cursor:pointer;border:none;transition:transform .15s ease,box-shadow .25s ease}
+.btn-primary{background:var(--indigo);color:#fff;box-shadow:0 12px 26px rgba(91,108,255,.4)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 18px 34px rgba(91,108,255,.5)}
+.btn-ghost{background:var(--card);color:var(--ink);box-shadow:var(--shadow-sm)}
+.btn-ghost:hover{transform:translateY(-2px)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* ---------------- LANDING ---------------- */
+nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:rgba(238,241,248,.75);border-bottom:1px solid transparent;transition:border-color .3s,background .3s}
+nav.scrolled{border-color:var(--line);background:rgba(238,241,248,.9)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:68px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;letter-spacing:-.01em}
+.logo .mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(145deg,#8a97ff,var(--indigo));box-shadow:0 6px 14px rgba(91,108,255,.45);display:grid;place-items:center;color:#fff;font-size:15px}
+.nav-links{display:flex;gap:28px;font-size:15px;font-weight:500;color:var(--ink-soft)}
+.nav-links a{transition:color .2s;cursor:pointer}.nav-links a:hover{color:var(--ink)}
+@media(max-width:760px){.nav-links{display:none}}
+.hero{position:relative;padding-block:70px 90px}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center}
+.hero h1{font-size:clamp(38px,6vw,68px);line-height:1.02;letter-spacing:-.03em;font-weight:800;margin:18px 0 20px;text-wrap:balance}
+.hero h1 .g{background:linear-gradient(120deg,var(--indigo),var(--rose));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.lead{font-size:clamp(16px,2vw,19px);color:var(--ink-soft);max-width:46ch;margin:0 0 30px}
+.hero-cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.hero-cta .micro{font-size:13px;color:var(--ink-soft)}.hero-cta .micro b{color:var(--ink);font-weight:600}
+@media(max-width:860px){.hero-grid{grid-template-columns:1fr;gap:10px}.hero{padding-block:44px 60px}}
+.scene-wrap{perspective:1100px;display:grid;place-items:center;min-height:360px}
+.scene{transform-style:preserve-3d;transition:transform .2s ease-out}
+.vault{width:190px;height:190px;position:relative;transform-style:preserve-3d;transform:rotateX(54deg) rotateZ(-40deg);animation:floaty 6s ease-in-out infinite}
+@keyframes floaty{0%,100%{transform:rotateX(54deg) rotateZ(-40deg) translateZ(0)}50%{transform:rotateX(54deg) rotateZ(-40deg) translateZ(26px)}}
+.face{position:absolute;inset:0;border-radius:26px}
+.face.top{background:linear-gradient(145deg,#9aa6ff,var(--indigo));transform:translateZ(48px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+.face.side{background:var(--indigo-d);width:96px;left:47px;top:0;height:100%;transform:rotateY(90deg) translateZ(143px);border-radius:0 0 26px 26px}
+.face.front{background:var(--indigo-dd);height:96px;top:47px;left:0;width:100%;transform:rotateX(-90deg) translateZ(143px);border-radius:0 0 26px 26px}
+.dial{position:absolute;width:58px;height:58px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#c7cdff);top:66px;left:66px;transform:translateZ(50px);box-shadow:0 0 0 6px rgba(255,255,255,.18);display:grid;place-items:center;color:var(--indigo-d);font-weight:800;font-family:"Space Mono",monospace}
+.coin{position:absolute;width:56px;height:56px;border-radius:50%;background:linear-gradient(145deg,#ffe59e,var(--coin));display:grid;place-items:center;font-weight:800;color:#7a4a05;font-size:22px;box-shadow:0 12px 20px rgba(0,0,0,.2),inset 0 0 0 3px rgba(255,255,255,.4)}
+.coin.c1{top:-34px;left:34px;animation:bob 3s ease-in-out infinite}
+.coin.c2{top:14px;right:-30px;animation:bob 3.6s ease-in-out .5s infinite}
+.coin.c3{bottom:-40px;left:70px;width:44px;height:44px;font-size:17px;animation:bob 3.2s ease-in-out .9s infinite}
+@keyframes bob{0%,100%{transform:translateZ(80px) translateY(0)}50%{transform:translateZ(80px) translateY(-16px)}}
+.scene-shadow{width:200px;height:34px;border-radius:50%;background:rgba(37,48,97,.18);filter:blur(14px);margin:40px auto 0;animation:shadowpulse 6s ease-in-out infinite}
+@keyframes shadowpulse{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(.82);opacity:.4}}
+.float-chip{position:absolute;background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:12px 15px;display:flex;align-items:center;gap:11px;font-size:13px}
+.float-chip .ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;color:#fff;font-size:15px}
+.fc-1{top:8%;left:-2%;animation:floaty2 5s ease-in-out infinite}
+.fc-2{bottom:10%;right:-4%;animation:floaty2 5.6s ease-in-out .7s infinite}
+@keyframes floaty2{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.float-chip b{display:block;font-size:15px;font-weight:700}.float-chip span{color:var(--ink-soft);font-size:11px}
+@media(max-width:860px){.float-chip{display:none}}
+.ticker{overflow:hidden;border-block:1px solid var(--line);background:var(--paper-2);padding:14px 0}
+.ticker-track{display:flex;gap:46px;white-space:nowrap;animation:marq 26s linear infinite;width:max-content}
+.ticker-track span{font-family:"Space Mono",monospace;font-size:13px;color:var(--ink-soft);letter-spacing:.06em}
+@keyframes marq{to{transform:translateX(-50%)}}
+section.block{padding-block:84px}
+.sec-head{max-width:620px;margin-bottom:46px}
+.sec-head h2{font-size:clamp(28px,4vw,42px);line-height:1.08;letter-spacing:-.02em;font-weight:800;margin:14px 0 14px;text-wrap:balance}
+.sec-head p{color:var(--ink-soft);font-size:17px;margin:0}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.step{background:var(--card);border-radius:var(--r);padding:28px;box-shadow:var(--shadow-sm);border:1px solid var(--line)}
+.step .n{font-family:"Space Mono",monospace;font-size:13px;color:var(--indigo);font-weight:700}
+.step .ic{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:24px;color:#fff;margin:14px 0 16px;box-shadow:0 10px 20px rgba(91,108,255,.3)}
+.step h3{font-size:19px;font-weight:700;margin:0 0 8px}.step p{color:var(--ink-soft);font-size:15px;margin:0}
+@media(max-width:820px){.steps{grid-template-columns:1fr}}
+.privacy{background:linear-gradient(160deg,#1a2133,#232b45);border-radius:28px;color:#eef1fb;padding:clamp(32px,5vw,64px);display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;overflow:hidden;position:relative}
+.privacy::before{content:"";position:absolute;width:360px;height:360px;border-radius:50%;background:radial-gradient(closest-side,rgba(91,108,255,.4),transparent);top:-120px;right:-80px}
+.privacy h2{font-size:clamp(26px,3.6vw,38px);line-height:1.1;letter-spacing:-.02em;font-weight:800;margin:14px 0 16px;position:relative}
+.privacy p{color:#aeb6d6;font-size:16px;margin:0 0 22px;position:relative;max-width:42ch}
+.privacy .eyebrow{color:var(--mint)}
+.pv-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px;position:relative}
+.pv-list li{display:flex;gap:12px;align-items:flex-start;font-size:15px;color:#cfd5ec}
+.pv-list .tick{color:var(--mint);font-weight:700;flex:0 0 auto}
+.pv-visual{position:relative;display:grid;place-items:center;min-height:220px}
+.orbit{width:170px;height:170px;border-radius:50%;border:1.5px dashed rgba(174,182,214,.4);position:relative;animation:spin 18s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.orbit .core{position:absolute;inset:0;margin:auto;width:84px;height:84px;border-radius:22px;background:linear-gradient(145deg,#8a97ff,var(--indigo));display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px;text-align:center;line-height:1.2;box-shadow:0 0 40px rgba(91,108,255,.6);animation:spin 18s linear infinite reverse}
+.orbit .sat{position:absolute;width:38px;height:38px;border-radius:11px;background:#2b3350;display:grid;place-items:center;font-size:15px;box-shadow:0 6px 14px rgba(0,0,0,.3)}
+.orbit .s1{top:-19px;left:66px}.orbit .s2{bottom:-19px;left:66px}.orbit .s3{top:66px;left:-19px}.orbit .s4{top:66px;right:-19px}
+@media(max-width:820px){.privacy{grid-template-columns:1fr}}
+.feat{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.fcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px;box-shadow:var(--shadow-sm)}
+.fcard .ic{font-size:24px;width:48px;height:48px;border-radius:13px;display:grid;place-items:center;margin-bottom:14px;background:var(--paper);color:var(--indigo-d)}
+.fcard h3{font-size:16px;font-weight:700;margin:0 0 6px}.fcard p{font-size:14px;color:var(--ink-soft);margin:0}
+@media(max-width:880px){.feat{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.feat{grid-template-columns:1fr}}
+.price{display:grid;grid-template-columns:1fr 1fr;gap:22px;max-width:820px;margin:0 auto}
+.plan{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:34px;box-shadow:var(--shadow-sm);position:relative}
+.plan.pro{background:linear-gradient(160deg,#20284a,#2e386a);color:#eef1fb;border:none;box-shadow:var(--shadow)}
+.plan .tier{font-family:"Space Mono",monospace;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--indigo-d)}
+.plan.pro .tier{color:#ffe59e}
+.plan .amt{font-size:42px;font-weight:800;letter-spacing:-.02em;margin:10px 0 2px}
+.plan .amt small{font-size:15px;font-weight:500;color:var(--ink-soft)}.plan.pro .amt small{color:#aeb6d6}
+.plan ul{list-style:none;padding:0;margin:20px 0 26px;display:flex;flex-direction:column;gap:11px;font-size:15px}
+.plan li{display:flex;gap:10px;align-items:flex-start}
+.plan li .tk{color:var(--indigo);font-weight:700;flex:0 0 auto}.plan.pro li .tk{color:var(--coin)}
+.badge-pop{position:absolute;top:-12px;right:24px;background:var(--coin);color:#5a3800;font-size:12px;font-weight:700;padding:5px 13px;border-radius:999px;font-family:"Space Mono",monospace}
+.plan .btn{width:100%;justify-content:center}
+.plan.pro .btn-primary{background:var(--coin);color:#5a3800;box-shadow:0 12px 26px rgba(245,180,60,.4)}
+@media(max-width:720px){.price{grid-template-columns:1fr}}
+.final{text-align:center;padding-block:90px}
+.final h2{font-size:clamp(30px,5vw,52px);font-weight:800;letter-spacing:-.02em;line-height:1.05;margin:0 0 18px;text-wrap:balance}
+.final p{color:var(--ink-soft);font-size:18px;margin:0 0 28px}
+footer{border-top:1px solid var(--line);padding-block:40px;color:var(--ink-soft);font-size:14px}
+.foot-in{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
+.reveal{opacity:0;transform:translateY(26px)}
+.reveal.in{opacity:1;transform:none;transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+
+/* ---------------- APP ---------------- */
+.app{max-width:1180px;margin:0 auto;padding-inline:20px;padding-block:18px 60px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;letter-spacing:-.01em}
+.brand .mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(145deg,#8a97ff,var(--indigo));box-shadow:0 6px 14px rgba(91,108,255,.45);display:grid;place-items:center;color:#fff;font-size:15px}
+.top-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pill{font-size:13px;font-weight:600;border-radius:999px;padding:7px 14px;display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--card)}
+.pill.pro{background:linear-gradient(145deg,#ffe59e,var(--coin));border:none;color:#5a3800}
+.pill .dot{width:7px;height:7px;border-radius:50%;background:var(--mint)}
+.btn-sm{font-size:14px;padding:9px 18px}
+.tabs{display:flex;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:6px;margin-bottom:20px;overflow-x:auto}
+.tab{flex:1;min-width:max-content;border:none;background:transparent;color:var(--ink-soft);font-weight:600;font-size:14px;padding:10px 16px;border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:8px;justify-content:center;white-space:nowrap;transition:.2s}
+.tab.active{background:var(--indigo);color:#fff;box-shadow:0 8px 18px rgba(91,108,255,.35)}
+.tab .cap{font-family:"Space Mono",monospace;font-size:11px;opacity:.85}
+.panel{animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.grid{display:grid;gap:16px}
+.tiles{grid-template-columns:repeat(4,1fr)}@media(max-width:820px){.tiles{grid-template-columns:repeat(2,1fr)}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-sm)}
+.pad{padding:22px}.tile{padding:18px 20px}
+.tile .lab{font-size:12px;color:var(--ink-soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.tile .val{font-size:26px;font-weight:800;letter-spacing:-.02em;margin-top:6px}
+.tile .val.red{color:var(--red)}.tile .val.green{color:var(--green)}
+.two{grid-template-columns:1.3fr 1fr}@media(max-width:900px){.two{grid-template-columns:1fr}}
+.sec-t{font-size:15px;font-weight:700;margin:0 0 4px}.sec-s{font-size:13px;color:var(--ink-soft);margin:0 0 16px}
+.tx-wrap{max-height:360px;overflow:auto;border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{position:sticky;top:0;background:var(--paper-2);text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);padding:10px 12px;font-weight:700}
+td{padding:11px 12px;border-top:1px solid var(--line)}
+td.amt{text-align:right;font-family:"Space Mono",monospace;font-weight:700}
+td.amt.neg{color:var(--red)}td.amt.pos{color:var(--green)}
+.catchip{font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--paper);color:var(--indigo-d);white-space:nowrap}
+.drop{border:2px dashed var(--line);border-radius:var(--r);padding:30px;text-align:center;transition:.2s;cursor:pointer;background:var(--paper-2)}
+.drop.drag{border-color:var(--indigo);background:#eef0ff}
+.drop .ic{font-size:30px;color:var(--indigo)}.drop h4{margin:10px 0 4px;font-size:16px}.drop p{margin:0;font-size:13px;color:var(--ink-soft)}
+.muted{color:var(--ink-soft);font-size:13px}
+.banner{background:#fff7e6;border:1px solid #f3d99a;color:#8a5a00;border-radius:12px;padding:10px 14px;font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.banner button{background:none;border:none;color:#8a5a00;font-weight:700;cursor:pointer;text-decoration:underline;font-size:13px}
+.chat{display:flex;flex-direction:column;height:520px}
+.msgs{flex:1;overflow:auto;display:flex;flex-direction:column;gap:12px;padding:4px}
+.msg{max-width:85%;padding:12px 15px;border-radius:14px;font-size:14px;line-height:1.5;white-space:pre-wrap}
+.msg.u{align-self:flex-end;background:var(--indigo);color:#fff;border-bottom-right-radius:4px}
+.msg.a{align-self:flex-start;background:var(--paper);border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg.sys{align-self:center;background:transparent;color:var(--ink-soft);font-size:12px;text-align:center}
+.composer{display:flex;gap:10px;margin-top:12px}
+.composer input{flex:1;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14px;font-family:inherit;background:var(--card)}
+.composer input:focus{outline:none;border-color:var(--indigo)}
+.suggest{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.suggest button{font-size:12px;background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--ink-soft)}
+.suggest button:hover{color:var(--ink);border-color:var(--indigo)}
+.mp{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:13px;margin-bottom:10px}
+.bar{height:7px;background:var(--line);border-radius:999px;overflow:hidden;margin-top:8px}
+.bar > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--indigo),var(--rose));transition:width .3s}
+.fbars{display:flex;align-items:flex-end;gap:10px;height:180px;margin-top:10px}
+.fbar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px}
+.fbar .b{width:100%;border-radius:8px 8px 0 0;background:linear-gradient(180deg,#8a97ff,var(--indigo));min-height:4px}
+.fbar .b.proj{background:repeating-linear-gradient(135deg,#ffd27a,#ffd27a 6px,#f5b43c 6px,#f5b43c 12px)}
+.fbar small{font-size:10px;color:var(--ink-soft)}
+.rzone{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:720px){.rzone{grid-template-columns:1fr}}
+#rimg{max-width:100%;border-radius:12px;border:1px solid var(--line)}
+.rline{font-family:"Space Mono",monospace;font-size:12px;color:var(--ink-soft);max-height:160px;overflow:auto;white-space:pre-wrap;background:var(--paper-2);border-radius:10px;padding:10px}
+.fmeta{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.limitpill{font-size:12px;font-weight:600;background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+.limitpill b{color:var(--indigo-d)}
+.chartbox{height:240px;position:relative}
+.overlay{position:fixed;inset:0;background:rgba(26,33,51,.55);display:grid;place-items:center;z-index:100;padding:20px}
+.modal{background:var(--card);border-radius:20px;max-width:420px;width:100%;padding:28px;box-shadow:var(--shadow);text-align:center}
+.modal h3{margin:0 0 6px;font-size:20px}.modal p{margin:0 0 18px;color:var(--ink-soft);font-size:14px}
+.modal input{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15px;text-align:center;font-family:"Space Mono",monospace;letter-spacing:.05em;margin-bottom:12px}
+.modal .err{font-size:13px;min-height:18px;margin-bottom:8px;color:var(--red)}
+.gpuwarn{background:#fdecea;border:1px solid #f3b9b4;color:#9a2b22;border-radius:12px;padding:12px 14px;font-size:13px;margin-bottom:12px}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important}.reveal{opacity:1!important;transform:none!important}html{scroll-behavior:auto}}
+</style>
+
+<!-- ================= SITE ================= -->
+<div id="site">
+<nav id="nav"><div class="wrap nav-in">
+  <div class="logo"><span class="mark">◆</span>PrivateLedger</div>
+  <div class="nav-links">
+    <a onclick="go('how')">How it works</a><a onclick="go('privacy')">Privacy</a><a onclick="go('features')">Features</a><a onclick="go('pricing')">Pricing</a>
+  </div>
+  <button class="btn btn-primary btn-sm" onclick="showApp()">Start free</button>
+</div></nav>
+
+<header class="hero"><div class="wrap hero-grid">
+  <div class="hero-copy">
+    <span class="eyebrow">On-device finance intelligence</span>
+    <h1>A vault for your money, <span class="g">on your device.</span></h1>
+    <p class="lead">PrivateLedger reads your statements, categorises every rupee, and answers your money questions — all on your own machine. Nothing is ever uploaded.</p>
+    <div class="hero-cta">
+      <button class="btn btn-primary" onclick="showApp()">Start free →</button>
+      <button class="btn btn-ghost" onclick="go('how')">See how it works</button>
+      <span class="micro"><b>0 bytes</b> leave your device</span>
+    </div>
+  </div>
+  <div class="hero-visual" style="position:relative">
+    <div class="float-chip fc-1"><div class="ic" style="background:var(--mint)">✓</div><div><b>Private</b><span>runs locally</span></div></div>
+    <div class="float-chip fc-2"><div class="ic" style="background:var(--indigo)">₹</div><div><b>₹12,40,000</b><span>net worth</span></div></div>
+    <div class="scene-wrap"><div class="scene" id="scene"><div class="vault">
+      <div class="face top"></div><div class="face side"></div><div class="face front"></div>
+      <div class="dial">₹</div><div class="coin c1">₹</div><div class="coin c2">₹</div><div class="coin c3">₹</div>
+    </div></div></div>
+    <div class="scene-shadow"></div>
+  </div>
+</div></header>
+
+<div class="ticker"><div class="ticker-track" id="tick">
+  <span>Nothing leaves your device&nbsp;&nbsp; 0 bytes uploaded&nbsp;&nbsp; Runs on-device&nbsp;&nbsp; Open-source core&nbsp;&nbsp; No account needed&nbsp;&nbsp; Works offline&nbsp;&nbsp;</span>
+  <span>Nothing leaves your device&nbsp;&nbsp; 0 bytes uploaded&nbsp;&nbsp; Runs on-device&nbsp;&nbsp; Open-source core&nbsp;&nbsp; No account needed&nbsp;&nbsp; Works offline&nbsp;&nbsp;</span>
+</div></div>
+
+<section class="block" id="how"><div class="wrap">
+  <div class="sec-head reveal"><span class="eyebrow">Three steps</span><h2>From a messy statement to clear answers.</h2><p>Drop in a bank statement or a photo of a receipt. The on-device model does the rest.</p></div>
+  <div class="steps">
+    <div class="step reveal"><div class="n">01</div><div class="ic" style="background:linear-gradient(145deg,#8a97ff,var(--indigo))">⬆</div><h3>Drop in your statement</h3><p>PDF, CSV, or a photo. It's read right here in your browser — the file never gets sent anywhere.</p></div>
+    <div class="step reveal"><div class="n">02</div><div class="ic" style="background:linear-gradient(145deg,#4fd1be,var(--mint))">✦</div><h3>The model reads it on-device</h3><p>A small language model extracts every transaction and sorts it into categories automatically.</p></div>
+    <div class="step reveal"><div class="n">03</div><div class="ic" style="background:linear-gradient(145deg,#ff9ec4,var(--rose))">✶</div><h3>Ask anything</h3><p>“How much did I spend on food in June?” Get an answer grounded in your own numbers.</p></div>
+  </div>
+</div></section>
+
+<section class="block" id="privacy"><div class="wrap"><div class="privacy reveal">
+  <div>
+    <span class="eyebrow">Private by architecture</span>
+    <h2>The only finance app that physically can't leak your data.</h2>
+    <p>Most finance apps upload your statements to their servers. PrivateLedger runs the whole pipeline on your device — so there's no server to breach, subpoena, or sell to.</p>
+    <ul class="pv-list">
+      <li><span class="tick">✓</span><span>Files are parsed in your browser and never transmitted.</span></li>
+      <li><span class="tick">✓</span><span>The language model runs locally — no API calls, no logging.</span></li>
+      <li><span class="tick">✓</span><span>Works fully offline once loaded.</span></li>
+      <li><span class="tick">✓</span><span>Open-source core, so the claim is auditable.</span></li>
+    </ul>
+  </div>
+  <div class="pv-visual"><div class="orbit">
+    <div class="sat s1">📄</div><div class="sat s2">🧾</div><div class="sat s3">💳</div><div class="sat s4">📊</div>
+    <div class="core">stays on<br>device</div>
+  </div></div>
+</div></div></section>
+
+<section class="block" id="features"><div class="wrap">
+  <div class="sec-head reveal"><span class="eyebrow">What it does</span><h2>Everything a finance app does — without the cloud.</h2></div>
+  <div class="feat">
+    <div class="fcard reveal"><div class="ic">◴</div><h3>Auto-categorise</h3><p>Every transaction sorted the moment it's imported.</p></div>
+    <div class="fcard reveal"><div class="ic">◍</div><h3>Spot anomalies</h3><p>Flags the charge that doesn't look like you.</p></div>
+    <div class="fcard reveal"><div class="ic">◆</div><h3>Ask in plain words</h3><p>Natural-language questions over your own data.</p></div>
+    <div class="fcard reveal"><div class="ic">◈</div><h3>Tax-rule lookup</h3><p>Answers grounded in reference notes, on-device.</p></div>
+  </div>
+</div></section>
+
+<section class="block" id="pricing"><div class="wrap">
+  <div class="sec-head reveal" style="margin-inline:auto;text-align:center"><span class="eyebrow">Pricing</span><h2>Free forever. Pro when you want more.</h2><p style="margin-inline:auto">The core is free and always will be. Pro lifts the daily limits.</p></div>
+  <div class="price">
+    <div class="plan reveal">
+      <div class="tier">Free</div><div class="amt">₹0 <small>/ forever</small></div>
+      <ul><li><span class="tk">✓</span>Import PDF &amp; CSV statements</li><li><span class="tk">✓</span>Automatic categorisation</li><li><span class="tk">✓</span>Spending dashboard</li><li><span class="tk">✓</span>All AI features, with daily limits</li></ul>
+      <button class="btn btn-ghost" onclick="showApp()">Get started</button>
+    </div>
+    <div class="plan pro reveal">
+      <span class="badge-pop">No limits</span><div class="tier">Pro</div><div class="amt">₹299 <small>/ month</small></div>
+      <ul><li><span class="tk">✓</span>Everything in Free</li><li><span class="tk">✓</span>Unlimited questions</li><li><span class="tk">✓</span>Unlimited forecasting</li><li><span class="tk">✓</span>Unlimited receipt scanning</li><li><span class="tk">✓</span>Unlimited tax assistant</li></ul>
+      <button class="btn btn-primary" onclick="showApp()">Upgrade to Pro</button>
+    </div>
+  </div>
+</div></section>
+
+<section class="final"><div class="wrap"><div class="reveal">
+  <h2>Your money deserves a private home.</h2><p>No account. No upload. No catch.</p>
+  <button class="btn btn-primary" style="font-size:17px;padding:15px 32px" onclick="showApp()">Open PrivateLedger →</button>
+</div></div></section>
+
+<footer><div class="wrap foot-in">
+  <div class="logo" style="font-size:16px"><span class="mark" style="width:26px;height:26px;font-size:13px">◆</span>PrivateLedger</div>
+  <div>Built on-device · your data never leaves your machine</div>
+  <div class="mono" style="font-size:12px">v0.2 · demo</div>
+</div></footer>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="appview" hidden><div class="app">
+  <div class="top">
+    <div class="brand"><span class="mark" style="cursor:pointer" onclick="showSite()">◆</span>PrivateLedger</div>
+    <div class="top-right">
+      <button class="btn btn-ghost btn-sm" onclick="showSite()">← Home</button>
+      <span class="pill"><span class="dot"></span>On-device</span>
+      <span class="pill pro" id="proPill" hidden>★ Pro unlocked</span>
+      <button class="btn btn-ghost btn-sm" id="unlockBtn">Unlock Pro</button>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-tab="dash">◴ Dashboard</button>
+    <button class="tab" data-tab="ask">◆ Ask <span class="cap" id="cap-ask"></span></button>
+    <button class="tab" data-tab="forecast">◢ Forecast <span class="cap" id="cap-forecast"></span></button>
+    <button class="tab" data-tab="receipt">▣ Receipts <span class="cap" id="cap-receipt"></span></button>
+    <button class="tab" data-tab="tax">◈ Tax <span class="cap" id="cap-tax"></span></button>
+  </div>
+
+  <div class="panel" id="p-dash">
+    <div class="banner" id="sampleBanner"><span>Showing <b>sample data</b> so you can explore. Import your own statement or clear it.</span><button onclick="document.getElementById('importCard').scrollIntoView({behavior:'smooth'})">Import yours →</button></div>
+    <div class="grid tiles" id="tiles"></div>
+    <div style="height:16px"></div>
+    <div class="grid two">
+      <div class="card pad"><p class="sec-t">Transactions</p><p class="sec-s" id="txcount"></p>
+        <div class="tx-wrap"><table><thead><tr><th>Date</th><th>Description</th><th>Category</th><th style="text-align:right">Amount</th></tr></thead><tbody id="txbody"></tbody></table></div></div>
+      <div class="card pad"><p class="sec-t">Where your money goes</p><p class="sec-s">Spending by category</p><div class="chartbox"><canvas id="catChart"></canvas></div></div>
+    </div>
+    <div style="height:16px"></div>
+    <div class="card pad" id="importCard">
+      <p class="sec-t">Import a statement</p><p class="sec-s">CSV or PDF. Everything is read in your browser — nothing is uploaded.</p>
+      <div class="drop" id="drop"><div class="ic">⬆</div><h4>Drop a file here, or click to choose</h4><p>Supports .csv and .pdf bank statements</p></div>
+      <input type="file" id="file" accept=".csv,.pdf" hidden>
+      <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" id="sampleBtn">Load sample data</button>
+        <button class="btn btn-ghost btn-sm" id="clearBtn">Clear all</button>
+        <span class="muted" id="importMsg" style="align-self:center"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="p-ask" hidden><div class="card pad">
+    <div class="fmeta"><div><p class="sec-t">Ask about your money</p><p class="sec-s" style="margin:0">Answers are grounded in your own transactions, computed locally.</p></div><span class="limitpill">Today: <b id="rem-ask"></b> left</span></div>
+    <div class="gpuwarn" id="gpuwarn-ask" hidden>Chat needs a browser with WebGPU — please open on <b>Chrome or Edge (desktop)</b>.</div>
+    <div class="mp" id="mp-ask" hidden>Loading the on-device model… first time downloads ~0.9&nbsp;GB, then it's cached.<div class="bar"><i id="mpbar-ask"></i></div></div>
+    <div class="chat">
+      <div class="msgs" id="msgs-ask"><div class="msg a">Hi! I'm running entirely on your device. Load some data, then ask me things like “how much did I spend on food?”</div></div>
+      <div class="suggest" id="sug-ask"><button>What were my top 3 spending categories?</button><button>How much did I spend on food?</button><button>Any unusually large transactions?</button></div>
+      <div class="composer"><input id="in-ask" placeholder="Ask a question…" autocomplete="off"><button class="btn btn-primary btn-sm" id="send-ask">Ask</button></div>
+    </div>
+  </div></div>
+
+  <div class="panel" id="p-forecast" hidden><div class="card pad">
+    <div class="fmeta"><div><p class="sec-t">Cash-flow forecast</p><p class="sec-s" style="margin:0">Projects next month from your recent averages. Pure maths, on-device.</p></div><span class="limitpill">Today: <b id="rem-forecast"></b> left</span></div>
+    <button class="btn btn-primary btn-sm" id="runForecast">Run forecast</button>
+    <div id="forecastOut" style="margin-top:18px"></div>
+  </div></div>
+
+  <div class="panel" id="p-receipt" hidden><div class="card pad">
+    <div class="fmeta"><div><p class="sec-t">Scan a receipt</p><p class="sec-s" style="margin:0">Reads the photo with on-device OCR and adds the total as a transaction.</p></div><span class="limitpill">Today: <b id="rem-receipt"></b> left</span></div>
+    <div class="rzone">
+      <div><div class="drop" id="rdrop"><div class="ic">▣</div><h4>Drop a receipt photo</h4><p>JPG or PNG · processed locally</p></div><input type="file" id="rfile" accept="image/*" hidden><img id="rimg" hidden alt="receipt preview" style="margin-top:12px"></div>
+      <div><p class="sec-s" style="margin:0 0 8px">Extracted text</p><div class="rline" id="rtext">No receipt scanned yet.</div><div id="rresult" style="margin-top:12px"></div></div>
+    </div>
+  </div></div>
+
+  <div class="panel" id="p-tax" hidden><div class="card pad">
+    <div class="fmeta"><div><p class="sec-t">Tax-rule assistant</p><p class="sec-s" style="margin:0">General guidance grounded in built-in reference notes. Not professional tax advice.</p></div><span class="limitpill">Today: <b id="rem-tax"></b> left</span></div>
+    <div class="gpuwarn" id="gpuwarn-tax" hidden>This assistant needs WebGPU — please open on <b>Chrome or Edge (desktop)</b>.</div>
+    <div class="mp" id="mp-tax" hidden>Loading the on-device model…<div class="bar"><i id="mpbar-tax"></i></div></div>
+    <div class="chat">
+      <div class="msgs" id="msgs-tax"><div class="msg a">Ask a general tax question (India). I'll answer from built-in reference notes and always remind you to verify with a professional.</div></div>
+      <div class="suggest" id="sug-tax"><button>What is the standard deduction this year?</button><button>Old vs new regime — what's the difference?</button><button>Is HRA taxable?</button></div>
+      <div class="composer"><input id="in-tax" placeholder="Ask a tax question…" autocomplete="off"><button class="btn btn-primary btn-sm" id="send-tax">Ask</button></div>
+    </div>
+  </div></div>
+</div></div>
+
+<div class="overlay" id="unlockModal" hidden><div class="modal">
+  <h3>Unlock PrivateLedger Pro</h3>
+  <p>Pro removes all daily limits. Enter your unlock code.</p>
+  <input id="codeInput" placeholder="UNLOCK CODE" autocomplete="off">
+  <div class="err" id="codeErr"></div>
+  <div style="display:flex;gap:10px"><button class="btn btn-ghost" id="closeModal" style="flex:1;justify-content:center">Cancel</button><button class="btn btn-primary" id="applyCode" style="flex:1;justify-content:center">Unlock</button></div>
+</div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+const CONFIG = {
+  PRO_CODE: "LEDGER-PRO-2026",
+  MODEL: "Llama-3.2-1B-Instruct-q4f16_1-MLC",
+  WEBLLM_URL: "https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.79/+esm",
+  TESSERACT_URL: "https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.1.1/tesseract.min.js",
+  LIMITS: { ask:5, forecast:2, receipt:3, tax:3 }
+};
+if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+const $ = id => document.getElementById(id);
+const INR = n => "₹" + Math.round(n).toLocaleString("en-IN");
+let TX=[], usingSample=true, PRO_MEM=false, appShown=false;
+
+/* view switching */
+function go(id){ const el=$(id); if(el) el.scrollIntoView({behavior:"smooth"}); }
+function showApp(){ $("site").hidden=true; $("appview").hidden=false; window.scrollTo(0,0); appShown=true; render(); }
+function showSite(){ $("appview").hidden=true; $("site").hidden=false; window.scrollTo(0,0); }
+
+/* categorisation */
+const RULES=[
+  ["Income",["salary","credit","interest","refund","cashback","dividend","payout"]],
+  ["Food & Dining",["swiggy","zomato","restaurant","cafe","coffee","dominos","mcdonald","kfc","eatery","dine"]],
+  ["Groceries",["bigbasket","grocery","dmart","reliance fresh","blinkit","zepto","supermarket","kirana"]],
+  ["Transport",["uber","ola","rapido","fuel","petrol","diesel","metro","irctc","indigo","flight","cab"]],
+  ["Shopping",["amazon","flipkart","myntra","ajio","mall","store","nykaa","shopping"]],
+  ["Bills & Utilities",["electricity","water","gas","jio","airtel","vi ","broadband","wifi","recharge","dth","bill"]],
+  ["Entertainment",["netflix","spotify","hotstar","prime video","bookmyshow","movie","game","youtube premium"]],
+  ["Health",["pharmacy","apollo","hospital","clinic","medical","1mg","pharmeasy","doctor"]],
+  ["Rent",["rent","landlord","housing","maintenance"]],
+];
+function categorise(desc,amount){ const d=(desc||"").toLowerCase();
+  if(amount>0){ for(const [c,ks] of RULES) if(c==="Income"&&ks.some(k=>d.includes(k))) return "Income"; return "Income"; }
+  for(const [c,ks] of RULES){ if(c==="Income")continue; if(ks.some(k=>d.includes(k))) return c; } return "Other"; }
+
+function sampleData(){
+  const rows=[["2026-09-01","Salary credit - ACME Corp",185000],["2026-09-02","Rent - landlord transfer",-32000],["2026-09-03","Swiggy order",-640],["2026-09-04","BigBasket groceries",-3850],["2026-09-05","Jio recharge",-399],["2026-09-06","Uber ride",-280],["2026-09-08","Amazon purchase",-2499],["2026-09-09","Electricity bill",-2100],["2026-09-11","Zomato dinner",-890],["2026-09-12","Netflix subscription",-649],["2026-09-14","Petrol pump",-2000],["2026-09-15","Apollo pharmacy",-740],["2026-09-17","Flipkart order",-1599],["2026-09-19","Ola cab",-320],["2026-09-21","Spotify",-119],["2026-09-22","BigBasket groceries",-2650],["2026-09-24","BookMyShow movie",-700],["2026-09-26","Interest credit",1240],["2026-09-27","Swiggy order",-520],["2026-09-28","Blinkit groceries",-980]];
+  return rows.map(r=>({date:r[0],desc:r[1],amount:r[2],category:categorise(r[1],r[2])}));
+}
+
+/* pro + limits */
+const isPro=()=>{ if(PRO_MEM)return true; try{return localStorage.getItem("pl_pro")==="1"}catch(e){return false} };
+const today=()=>new Date().toISOString().slice(0,10);
+function used(k){ try{const o=JSON.parse(localStorage.getItem("pl_use_"+k)||"{}");return o.d===today()?(o.n||0):0}catch(e){return 0} }
+function bump(k){ try{localStorage.setItem("pl_use_"+k,JSON.stringify({d:today(),n:used(k)+1}))}catch(e){} }
+const limit=k=>isPro()?Infinity:CONFIG.LIMITS[k];
+const canUse=k=>used(k)<limit(k);
+const remaining=k=>{const l=limit(k);return l===Infinity?"∞":Math.max(0,l-used(k))};
+function refreshLimits(){
+  ["ask","forecast","receipt","tax"].forEach(k=>{const r=remaining(k);const el=$("rem-"+k);if(el)el.textContent=r+(r==="∞"?"":" / "+CONFIG.LIMITS[k]);const cap=$("cap-"+k);if(cap)cap.textContent=isPro()?"∞":("· "+r);});
+  $("proPill").hidden=!isPro(); $("unlockBtn").hidden=isPro();
+}
+
+/* dashboard */
+let chart=null;
+function esc(s){return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}
+function render(){
+  const income=TX.filter(t=>t.amount>0).reduce((s,t)=>s+t.amount,0);
+  const spend=TX.filter(t=>t.amount<0).reduce((s,t)=>s+Math.abs(t.amount),0);
+  const net=income-spend; const byCat={};
+  TX.filter(t=>t.amount<0).forEach(t=>byCat[t.category]=(byCat[t.category]||0)+Math.abs(t.amount));
+  const top=Object.entries(byCat).sort((a,b)=>b[1]-a[1])[0];
+  $("tiles").innerHTML=[["Money in",INR(income),"green"],["Money out",INR(spend),"red"],["Net",(net<0?"-":"")+INR(Math.abs(net)),net<0?"red":"green"],["Top category",top?top[0]:"—",""]].map(t=>`<div class="card tile"><div class="lab">${t[0]}</div><div class="val ${t[2]}">${t[1]}</div></div>`).join("");
+  $("txcount").textContent=TX.length+" transactions";
+  $("txbody").innerHTML=TX.slice().reverse().map(t=>`<tr><td class="mono" style="white-space:nowrap">${t.date}</td><td>${esc(t.desc)}</td><td><span class="catchip">${t.category}</span></td><td class="amt ${t.amount<0?"neg":"pos"}">${t.amount<0?"-":"+"}${INR(Math.abs(t.amount))}</td></tr>`).join("");
+  const labels=Object.keys(byCat),data=Object.values(byCat);
+  const colors=["#5b6cff","#2dd4bf","#e85d9e","#f5b43c","#8a97ff","#1f9d63","#e2504a","#a78bfa","#64748b"];
+  if(chart){chart.destroy();chart=null;}
+  if(window.Chart&&labels.length&&appShown){
+    chart=new Chart($("catChart"),{type:"doughnut",data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom",labels:{font:{family:"Plus Jakarta Sans",size:12},padding:14,color:"#5a6378"}}},cutout:"62%"}});
+  }
+  $("sampleBanner").hidden=!usingSample;
+}
+
+/* import */
+function parseCSV(text){
+  const lines=text.split(/\r?\n/).filter(l=>l.trim()); if(!lines.length)return[];
+  const split=l=>{const o=[];let c="",q=false;for(const ch of l){if(ch==='"'){q=!q}else if(ch===","&&!q){o.push(c);c=""}else c+=ch}o.push(c);return o.map(s=>s.trim().replace(/^"|"$/g,""))};
+  const h=split(lines[0]).map(x=>x.toLowerCase());
+  const di=h.findIndex(x=>/date/.test(x)),ai=h.findIndex(x=>/amount|amt|value|debit|credit/.test(x)),ni=h.findIndex(x=>/desc|narration|detail|particular|merchant|name/.test(x));
+  const rows=[];
+  for(let i=1;i<lines.length;i++){const c=split(lines[i]);if(!c.length)continue;const date=di>=0?c[di]:(c[0]||"");const desc=ni>=0?c[ni]:(c[1]||"transaction");let amt=parseFloat((ai>=0?c[ai]:c[c.length-1]||"").replace(/[₹,\s]/g,""));if(isNaN(amt))continue;rows.push({date,desc,amount:amt,category:categorise(desc,amt)});}
+  return rows;
+}
+async function parsePDF(file){
+  const buf=await file.arrayBuffer();const pdf=await pdfjsLib.getDocument({data:buf}).promise;let text="";
+  for(let p=1;p<=pdf.numPages;p++){const page=await pdf.getPage(p);const c=await page.getTextContent();text+=c.items.map(i=>i.str).join(" ")+"\n";}
+  const rows=[];
+  text.split(/\n|(?=\d{2}[\/\-]\d{2}[\/\-]\d{2,4})/).forEach(line=>{
+    const dm=line.match(/\d{2,4}[\/\-]\d{2}[\/\-]\d{2,4}/),am=line.match(/-?\d[\d,]*\.?\d{0,2}/g);
+    if(dm&&am){const amt=parseFloat(am[am.length-1].replace(/,/g,""));if(!isNaN(amt)&&Math.abs(amt)>0){const desc=line.replace(dm[0],"").replace(am[am.length-1],"").trim().slice(0,60)||"transaction";const signed=/cr|credit|deposit/i.test(line)?Math.abs(amt):-Math.abs(amt);rows.push({date:dm[0],desc,amount:signed,category:categorise(desc,signed)});}}
+  });
+  return rows;
+}
+async function handleFile(file){
+  $("importMsg").textContent="Reading "+file.name+"…";
+  try{let rows=[];if(file.name.toLowerCase().endsWith(".pdf"))rows=await parsePDF(file);else rows=parseCSV(await file.text());
+    if(!rows.length){$("importMsg").textContent="Couldn't find transactions. Try a CSV with date, description, amount columns.";return;}
+    TX=rows;usingSample=false;render();refreshLimits();$("importMsg").textContent="Imported "+rows.length+" transactions — all parsed locally.";
+  }catch(e){$("importMsg").textContent="Error reading file: "+e.message;}
+}
+
+/* model */
+let engine=null;
+async function ensureModel(which){
+  if(engine)return engine;
+  if(!navigator.gpu){$("gpuwarn-"+which).hidden=false;throw new Error("WebGPU not available");}
+  const mp=$("mp-"+which),bar=$("mpbar-"+which);mp.hidden=false;
+  const webllm=await import(CONFIG.WEBLLM_URL);
+  engine=await webllm.CreateMLCEngine(CONFIG.MODEL,{initProgressCallback:p=>{if(bar)bar.style.width=Math.round((p.progress||0)*100)+"%";}});
+  mp.hidden=true;return engine;
+}
+async function streamAnswer(which,system,user,bubble){
+  const eng=await ensureModel(which);
+  const chunks=await eng.chat.completions.create({messages:[{role:"system",content:system},{role:"user",content:user}],stream:true,temperature:0.3});
+  let out="";for await(const c of chunks){out+=(c.choices[0]?.delta?.content||"");bubble.textContent=out;bubble.parentElement.scrollTop=bubble.parentElement.scrollHeight;}return out;
+}
+function dataContext(){
+  if(!TX.length)return "The user has not imported any transactions yet.";
+  const income=TX.filter(t=>t.amount>0).reduce((s,t)=>s+t.amount,0),spend=TX.filter(t=>t.amount<0).reduce((s,t)=>s+Math.abs(t.amount),0),byCat={};
+  TX.filter(t=>t.amount<0).forEach(t=>byCat[t.category]=(byCat[t.category]||0)+Math.abs(t.amount));
+  const cats=Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([c,v])=>c+": ₹"+Math.round(v)).join(", ");
+  const big=TX.slice().sort((a,b)=>Math.abs(b.amount)-Math.abs(a.amount)).slice(0,5).map(t=>t.desc+" ₹"+Math.round(Math.abs(t.amount))).join("; ");
+  return `Transactions: ${TX.length}. Total income ₹${Math.round(income)}, total spend ₹${Math.round(spend)}, net ₹${Math.round(income-spend)}. Spend by category: ${cats}. Largest: ${big}.`;
+}
+const TAX_NOTES=`India income tax, illustrative reference (verify current year):
+- Two regimes: old (with deductions like 80C, HRA) and new (lower slab rates, fewer deductions).
+- The new regime offers a standard deduction for salaried individuals and is the default unless old is opted for.
+- Section 80C allows deductions for PPF, ELSS, life insurance premiums up to a yearly cap (old regime).
+- HRA exemption is available under the old regime for those paying rent, subject to conditions.
+- Slab rates and exact limits change each Budget — always confirm the current financial year's figures.`;
+
+function addMsg(box,role,text){const d=document.createElement("div");d.className="msg "+role;d.textContent=text;$(box).appendChild(d);$(box).scrollTop=$(box).scrollHeight;return d;}
+async function doAsk(which){
+  const input=$("in-"+which),q=input.value.trim();if(!q)return;
+  if(!canUse(which)){addMsg("msgs-"+which,"sys",`You've used today's ${CONFIG.LIMITS[which]} free ${which} questions. Unlock Pro for unlimited.`);return;}
+  input.value="";addMsg("msgs-"+which,"u",q);const bubble=addMsg("msgs-"+which,"a","…");
+  try{let system,user;
+    if(which==="ask"){system="You are PrivateLedger, a concise personal-finance assistant running on the user's device. Answer ONLY from the data provided. Use ₹. If the data doesn't contain the answer, say so. Keep it short.";user="DATA:\n"+dataContext()+"\n\nQUESTION: "+q;}
+    else{system="You are a cautious India tax-guidance assistant. Use the reference notes. Always end with: 'This is general information, not professional tax advice — verify with a qualified advisor.' Keep it short.";user="REFERENCE NOTES:\n"+TAX_NOTES+"\n\nQUESTION: "+q;}
+    await streamAnswer(which,system,user,bubble);bump(which);refreshLimits();
+  }catch(e){bubble.textContent=navigator.gpu?("Model error: "+e.message):"Chat needs Chrome or Edge with WebGPU to run the on-device model.";}
+}
+
+/* forecast */
+function runForecast(){
+  if(!canUse("forecast")){$("forecastOut").innerHTML='<p class="muted">You\'ve used today\'s free forecasts. Unlock Pro for unlimited.</p>';return;}
+  if(!TX.length){$("forecastOut").innerHTML='<p class="muted">Import data first.</p>';return;}
+  const byCat={};TX.filter(t=>t.amount<0).forEach(t=>byCat[t.category]=(byCat[t.category]||0)+Math.abs(t.amount));
+  const income=TX.filter(t=>t.amount>0).reduce((s,t)=>s+t.amount,0);
+  const cats=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);const totalSpend=cats.reduce((s,c)=>s+c[1],0);const projSpend=Math.round(totalSpend*1.03);const max=Math.max(totalSpend,projSpend,1);
+  $("forecastOut").innerHTML=`<div class="grid tiles" style="grid-template-columns:repeat(3,1fr)"><div class="card tile"><div class="lab">This month spend</div><div class="val red">${INR(totalSpend)}</div></div><div class="card tile"><div class="lab">Projected next month</div><div class="val">${INR(projSpend)}</div></div><div class="card tile"><div class="lab">Projected net</div><div class="val ${income-projSpend<0?'red':'green'}">${(income-projSpend<0?'-':'')+INR(Math.abs(income-projSpend))}</div></div></div><p class="sec-s" style="margin:18px 0 4px">By category — this month vs projected</p><div class="fbars">${cats.map(c=>{const proj=Math.round(c[1]*1.03);return `<div class="fbar"><div class="b" style="height:${(c[1]/max*150)}px"></div><div class="b proj" style="height:${(proj/max*150)}px"></div><small>${c[0].split(" ")[0]}</small></div>`;}).join("")}</div><p class="muted" style="margin-top:10px">Solid = this month · striped = projected. Average-based projection, computed on your device.</p>`;
+  bump("forecast");refreshLimits();
+}
+
+/* receipt OCR */
+let tLoaded=false;
+function loadTesseract(){return new Promise((res,rej)=>{if(tLoaded)return res();const s=document.createElement("script");s.src=CONFIG.TESSERACT_URL;s.onload=()=>{tLoaded=true;res()};s.onerror=()=>rej(new Error("Couldn't load OCR engine"));document.head.appendChild(s);});}
+async function scanReceipt(file){
+  if(!canUse("receipt")){$("rresult").innerHTML='<p class="muted">You\'ve used today\'s free scans. Unlock Pro for unlimited.</p>';return;}
+  const img=$("rimg");img.hidden=false;img.src=URL.createObjectURL(file);$("rtext").textContent="Running on-device OCR…";
+  try{await loadTesseract();const {data}=await Tesseract.recognize(file,"eng");const text=data.text||"";$("rtext").textContent=text||"(no text found)";
+    const amts=(text.match(/\d[\d,]*\.\d{2}/g)||[]).map(x=>parseFloat(x.replace(/,/g,"")));const total=amts.length?Math.max(...amts):null;
+    const first=(text.split(/\n/).find(l=>l.trim().length>2)||"Receipt").trim().slice(0,40);
+    if(total){$("rresult").innerHTML=`<div class="card tile"><div class="lab">Detected total</div><div class="val red">-${INR(total)}</div><p class="muted" style="margin:8px 0 10px">${esc(first)}</p><button class="btn btn-primary btn-sm" id="addReceipt">Add as transaction</button></div>`;$("addReceipt").onclick=()=>{TX.push({date:today(),desc:first,amount:-total,category:categorise(first,-total)});usingSample=false;render();$("rresult").innerHTML='<p class="muted">Added to your transactions ✓</p>';};}
+    else $("rresult").innerHTML='<p class="muted">Couldn\'t detect a total amount. Try a clearer photo.</p>';
+    bump("receipt");refreshLimits();
+  }catch(e){$("rtext").textContent="OCR error: "+e.message;}
+}
+
+/* wiring */
+function initEvents(){
+  document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));t.classList.add("active");["dash","ask","forecast","receipt","tax"].forEach(n=>$("p-"+n).hidden=(n!==t.dataset.tab));});
+  const drop=$("drop"),file=$("file");
+  drop.onclick=()=>file.click();file.onchange=e=>{if(e.target.files[0])handleFile(e.target.files[0]);};
+  ["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("drag")}));
+  ["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("drag")}));
+  drop.addEventListener("drop",e=>{if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});
+  $("sampleBtn").onclick=()=>{TX=sampleData();usingSample=true;render();$("importMsg").textContent="Loaded sample data.";};
+  $("clearBtn").onclick=()=>{TX=[];usingSample=false;render();$("importMsg").textContent="Cleared.";};
+  $("send-ask").onclick=()=>doAsk("ask");$("in-ask").addEventListener("keydown",e=>{if(e.key==="Enter")doAsk("ask")});
+  $("send-tax").onclick=()=>doAsk("tax");$("in-tax").addEventListener("keydown",e=>{if(e.key==="Enter")doAsk("tax")});
+  document.querySelectorAll("#sug-ask button").forEach(b=>b.onclick=()=>{$("in-ask").value=b.textContent;doAsk("ask")});
+  document.querySelectorAll("#sug-tax button").forEach(b=>b.onclick=()=>{$("in-tax").value=b.textContent;doAsk("tax")});
+  $("runForecast").onclick=runForecast;
+  const rdrop=$("rdrop"),rfile=$("rfile");
+  rdrop.onclick=()=>rfile.click();rfile.onchange=e=>{if(e.target.files[0])scanReceipt(e.target.files[0]);};
+  ["dragenter","dragover"].forEach(ev=>rdrop.addEventListener(ev,e=>{e.preventDefault();rdrop.classList.add("drag")}));
+  ["dragleave","drop"].forEach(ev=>rdrop.addEventListener(ev,e=>{e.preventDefault();rdrop.classList.remove("drag")}));
+  rdrop.addEventListener("drop",e=>{if(e.dataTransfer.files[0])scanReceipt(e.dataTransfer.files[0]);});
+  $("unlockBtn").onclick=()=>{$("unlockModal").hidden=false;$("codeInput").value="";$("codeErr").textContent="";$("codeInput").focus();};
+  $("closeModal").onclick=()=>$("unlockModal").hidden=true;
+  $("applyCode").onclick=()=>{
+    const norm=s=>(s||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
+    if(norm($("codeInput").value)===norm(CONFIG.PRO_CODE)){
+      PRO_MEM=true;try{localStorage.setItem("pl_pro","1")}catch(e){}engine=null;refreshLimits();
+      $("codeErr").style.color="var(--green)";$("codeErr").textContent="Pro unlocked ✓";
+      setTimeout(()=>{$("unlockModal").hidden=true;$("codeErr").style.color="";$("codeErr").textContent="";},700);
+    } else {$("codeErr").style.color="";$("codeErr").textContent="That code isn't right. It's LEDGER-PRO-2026";}
+  };
+  $("codeInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("applyCode").click()});
+}
+
+/* landing animations */
+function initLanding(){
+  const nav=$("nav");
+  window.addEventListener("scroll",()=>{if(nav)nav.classList.toggle("scrolled",window.scrollY>10);},{passive:true});
+  const reveals=[].slice.call(document.querySelectorAll(".reveal"));
+  if("IntersectionObserver" in window){const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);}});},{threshold:.12});reveals.forEach(r=>io.observe(r));}
+  else reveals.forEach(r=>r.classList.add("in"));
+  const scene=$("scene"),hv=document.querySelector(".hero-visual");
+  if(scene&&hv){hv.addEventListener("mousemove",ev=>{const r=hv.getBoundingClientRect();const x=(ev.clientX-r.left)/r.width-.5,y=(ev.clientY-r.top)/r.height-.5;scene.style.transform="rotateX("+(-y*12)+"deg) rotateY("+(x*16)+"deg)";});hv.addEventListener("mouseleave",()=>scene.style.transform="rotateX(0) rotateY(0)");}
+}
+
+/* boot */
+TX=sampleData();usingSample=true;
+initEvents();initLanding();refreshLimits();
+window.showApp=showApp;window.showSite=showSite;window.go=go;
+</script>
