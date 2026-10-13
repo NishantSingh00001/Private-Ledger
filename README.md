@@ -6,6 +6,8 @@ PrivateLedger reads your bank statements, categorises every transaction, answers
 
 > Most finance apps send your statements to their servers. PrivateLedger has no server to breach, subpoena, or sell to — the whole pipeline runs on your machine.
 
+## Live Demo: https://private-ledger-nishant.netlify.app/
+
 ---
 
 ## Table of contents
